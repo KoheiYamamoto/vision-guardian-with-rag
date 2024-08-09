@@ -1,0 +1,190 @@
+<head>
+    <title>Gurdian AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Gurdian AI</a>
+        </div>
+        <form method="post" action="/reset" enctype="multipart/form-data">
+            <div style="position: relative;">
+             <button type="submit" style="border: 2px solid white; margin-right: 1em; margin-top: 10px" class="btn btn-primary">RESET</button>
+            </div>
+        </form>
+        <form method="post" action="/report" enctype="multipart/form-data">
+            <div style="position: relative;">
+             <button type="submit" style="border: 2px solid white; margin-right: 1em; margin-top: 10px" class="btn btn-primary">REPORT</button>
+            </div>
+        </form>
+    </nav>
+    <div class="container">
+        
+        <div class="row">
+            
+            <div class="col-6">
+                <h3>カメラ画像</h3>
+                <div class="card" style="margin: 1em 0; padding: 1em 0 0 0; align-items: center; border: 2px solid black;">
+                    <div id="image"></div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <h3>AI 解析画像</h3>
+                <div class="card" style="margin: 1em 0; padding: 1em 0 0 0; align-items: center; border: 2px solid black;">
+                    <div id="ai_image"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            
+            <div class="col-12">
+                <h3>AI 解析ログ</h3>
+                <div class="card" style="margin: 1em 0; padding: 0em 0 0 0; align-items: center; border: 2px solid black;">
+                    <div class="table-wrapper">
+                        <table id="tablelog" class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">時間</th>
+                                    <th scope="col">状況</th>
+                                    <th scope="col">危険度</th>
+                                    <th scope="col">対処</th>
+                                    <th scope="col">理由</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+
+    </div>
+</body>
+
+<!--JSのSocket.IOクライアントを読み込む-->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="" crossorigin="anonymous"></script> -->
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+    
+    function ping(){
+        socket.emit('ping');  // サーバにpingイベントを投げつける
+    }
+
+    function addLogToTable(time, situation, level, judge, reason) {
+        // If judge is not 'n/a', add a class to the row
+        var flag = 0;
+        if (judge !== 'n/a') {
+            flag = 1
+            if (judge == 'undefined') {
+                judge = '[危険-前例に該当なし]';
+                reason = '[AI予測] ' + reason;
+            }
+            else {
+                judge = '[危険-前例に該当あり] ' + judge;
+                reason = '[前例参照] ' + reason;
+            }
+        } else {
+            judge = '[問題なし]';
+            reason = '[問題なし]';
+        }
+
+        var tbody = document.getElementById("tablelog");
+        var tr = document.createElement('tr');
+        
+        var tdTime = document.createElement('td');
+        tdTime.textContent = time;
+        tr.appendChild(tdTime);
+        
+        var tdSitu = document.createElement('td');
+        tdSitu.textContent = situation;
+        tr.appendChild(tdSitu);
+
+        var tdLevel = document.createElement('td');
+        tdLevel.textContent = level;
+        tr.appendChild(tdLevel);
+
+        var tdJudge = document.createElement('td');
+        tdJudge.textContent = judge;
+        tr.appendChild(tdJudge);
+
+        var tdReason = document.createElement('td');
+        tdReason.textContent = reason;
+        tr.appendChild(tdReason);
+
+        // Insert the new row at the top of the table
+        tbody.insertBefore(tr, tbody.firstChild);
+        // if (flag == 1) {
+        //     alert('ALERT!\nDANGER LEVEL: ' + level + '\nREASON: ' + reason + '\nSITUATION: ' + situation + '\nTIME: ' + time + '\nJUDGE: ' + judge);
+        // }
+        if (flag == 1) {
+            tr.classList.add('highlight');
+            if (!("Notification" in window)) {
+                alert("This browser does not support desktop notification");
+            }
+            else if (Notification.permission === "granted") {
+                var notification = new Notification('ALERT!\nDANGER LEVEL: ' + level + '\nREASON: ' + reason + '\nSITUATION: ' + situation + '\nTIME: ' + time + '\nJUDGE: ' + judge);
+            }
+            else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(function (permission) {
+                    if (permission === "granted") {
+                        var notification = new Notification('ALERT!\nDANGER LEVEL: ' + level + '\nREASON: ' + reason + '\nSITUATION: ' + situation + '\nTIME: ' + time + '\nJUDGE: ' + judge);
+                    }
+                });
+            }
+        }
+    }
+
+    function updateImage(imageUrl, aiImageUrl) {
+        var imgElement = document.createElement('img');
+        var aiImgElement = document.createElement('img');
+        imgElement.src = imageUrl;
+        aiImgElement.src = aiImageUrl;
+        // imgElement.width = 800;  // Set the image width
+        // imgElement.height = 370;  // Set the image height
+        var imageContainer = document.getElementById("image");
+        var aiImageContainer = document.getElementById("ai_image");
+        // Remove old image if it exists
+        while (imageContainer.firstChild) {
+            imageContainer.removeChild(imageContainer.firstChild);
+        }
+        while (aiImageContainer.firstChild) {
+            aiImageContainer.removeChild(aiImageContainer.firstChild);
+        }
+        // Append new image
+        imageContainer.appendChild(imgElement);
+        aiImageContainer.appendChild(aiImgElement);
+    }
+
+    socket.on('connect', function() { // 初期化時に呼ばれるコールバック
+        
+        socket.on('noupdate', () => { // pongが帰ってきたら呼ばれるコールバック
+            console.log('no update');
+        });
+
+        socket.on('update', (data) => { // pongが帰ってきたら呼ばれるコールバック      
+            console.log('update');
+            // parse data
+            var time = data.time;
+            var situation = data.description;
+            var level = data.level;
+            var measurement = data.measurement;
+            var reason = data.reason;
+            var imageUrl = data.image_url;
+            var aiImageUrl = data.image_captioned_url;
+
+            updateImage(imageUrl, aiImageUrl);
+
+            addLogToTable(time, situation, level, measurement, reason);
+        });
+
+        // Call ping function every 1 second
+        setInterval(ping, 1000);
+    });
+</script>

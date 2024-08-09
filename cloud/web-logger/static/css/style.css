@@ -1,0 +1,70 @@
+.container{
+    width: 100%;
+    max-width: 1800px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.btn {
+    padding: 0.15rem 1rem;
+}
+
+/* .table-wrapper {
+    height: 300px;
+    overflow-y: auto;
+    border-top: none !important;
+} */
+
+.table-wrapper table {
+    table-layout: fixed;
+    width: 100%;  /* テーブル全体の幅を指定 */
+  }
+  
+.table-wrapper table th:nth-child(1), .table-wrapper table td:nth-child(1) {
+  width: 9%;  /* 最初の列の幅を指定 */
+  overflow: hidden;  /* 内容がセルを超えた場合に隠す */
+  text-overflow: ellipsis;  /* 内容がセルを超えた場合に省略記号(...)を表示 */
+  white-space: normal;  /* 改行を許可 */
+  word-wrap: break-word;  /* 長い単語を折り返す */
+}
+
+.table-wrapper table th:nth-child(2), .table-wrapper table td:nth-child(2) {
+  width: 34%;  /* 2番目と3番目の列の幅を指定 */
+  overflow: hidden;  /* 内容がセルを超えた場合に隠す */
+  text-overflow: ellipsis;  /* 内容がセルを超えた場合に省略記号(...)を表示 */
+  white-space: normal;  /* 改行を許可 */
+  word-wrap: break-word;  /* 長い単語を折り返す */
+}
+
+.table-wrapper table th:nth-child(3), .table-wrapper table td:nth-child(3) {
+  width: 7%;  /* 2番目と3番目の列の幅を指定 */
+  overflow: hidden;  /* 内容がセルを超えた場合に隠す */
+  text-overflow: ellipsis;  /* 内容がセルを超えた場合に省略記号(...)を表示 */
+  white-space: normal;  /* 改行を許可 */
+  word-wrap: break-word;  /* 長い単語を折り返す */
+}
+
+.table-wrapper table th:nth-child(4), .table-wrapper table td:nth-child(4) {
+  width: 20%;  /* 4番目の列の幅を指定 */
+  overflow: hidden;  /* 内容がセルを超えた場合に隠す */
+  text-overflow: ellipsis;  /* 内容がセルを超えた場合に省略記号(...)を表示 */
+  white-space: normal;  /* 改行を許可 */
+  word-wrap: break-word;  /* 長い単語を折り返す */
+}
+
+.table-wrapper table th:nth-child(5), .table-wrapper table td:nth-child(5) {
+  width: 30%;  /* 5番目の列の幅を指定 */
+  overflow: hidden;  /* 内容がセルを超えた場合に隠す */
+  text-overflow: ellipsis;  /* 内容がセルを超えた場合に省略記号(...)を表示 */
+  white-space: normal;  /* 改行を許可 */
+  word-wrap: break-word;  /* 長い単語を折り返す */
+}
+
+.highlight {
+  background-color: #FFCCCC; /* Light red */
+}
+
+.td {
+  word-wrap: break-word;
+  white-space: normal;
+}
